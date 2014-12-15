@@ -1,0 +1,32 @@
+//
+//  PrefixHeader.pch
+//  ChatDieta
+//
+//  Created by Sergey on 04.11.14.
+//  Copyright (c) 2014 BestAppStudio. All rights reserved.
+//
+
+#ifndef ChatDieta_PrefixHeader_pch
+#define ChatDieta_PrefixHeader_pch
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+    #import "BASAppDelegate.h"
+    #import "BASManager.h"
+    #import "BASBaseViewController.h"
+    #import <FacebookSDK/FacebookSDK.h>
+    #import "UIImageView+WebCache.h"
+
+
+#endif
+#define TheApp BASAppDelegate *app = (BASAppDelegate*)[[UIApplication sharedApplication] delegate]
+#define Is4Inch [(BASAppDelegate*)[[UIApplication sharedApplication] delegate] is4InchScreen]
+#define IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define IS_IPHONE_5 (IS_IPHONE && ([[UIScreen mainScreen] bounds].size.height == 568.0 || [[UIScreen mainScreen] bounds].size.height == 480.0))
+#define IS_IPHONE_6 (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 667.0)
+#define IS_IPHONE_6_PLUS (IS_IPHONE && [[UIScreen mainScreen] bounds].size.height == 736.0)
+
+
+#endif
