@@ -172,7 +172,7 @@
 
     [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"LOGOUT" withParam:nil] success:^(NSDictionary* responseObject) {
         if([responseObject isKindOfClass:[NSDictionary class]]){
-            NSLog(@"%@",responseObject);
+            //NSLog(@"%@",responseObject);
  
             NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
             [userDefaults removeObjectForKey:@"login"];

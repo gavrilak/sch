@@ -123,26 +123,29 @@
 
 - (void)getData{
     TheApp;
+    _tableView.allowsSelection = FALSE;
     NSNumber* id_user = (NSNumber*)[_contentData objectForKey:@"id_user"];
     __block NSDictionary* param = @{
                             @"id_user" :id_user,
                             };
     [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"GETMESSAGES" withParam:param] success:^(NSDictionary* responseObject) {
         if([responseObject isKindOfClass:[NSDictionary class]]){
-            NSLog(@"%@",responseObject);
+            //NSLog(@"%@",responseObject);
            
             [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"SETMESSAGESREAD" withParam:param] success:^(NSDictionary* responseObject) {
                 if([responseObject isKindOfClass:[NSDictionary class]]){
-                    NSLog(@"%@",responseObject);
-                    NSArray* param = (NSArray*)[responseObject objectForKey:@"param"];
-                  
-                    
-                    [self.messages removeAllObjects];
-                    [self.messages addObjectsFromArray:(NSArray*)param];
+                  //  NSLog(@"%@",responseObject);
+                if ([[responseObject objectForKey:@"command"] isEqualToString:@"SETMESSAGESREAD"]){
+                            NSArray* param = (NSArray*)[responseObject objectForKey:@"param"];
+                            [self.messages removeAllObjects];
+                            [self.messages addObjectsFromArray:(NSArray*)param];
                 
-                    [_tableView reloadData];
-                    if(_messages.count > 0){
-                        [_tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:_messages.count -1] animated:NO scrollPosition:UITableViewScrollPositionBottom];
+                            [_tableView reloadData];
+                            if(_messages.count > 0){
+                                [_tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:_messages.count -1] animated:NO scrollPosition:UITableViewScrollPositionBottom];
+                                
+                            }
+                            _tableView.allowsSelection = true;
                     }
                 }
             }failure:^(NSString *error) {
@@ -164,7 +167,7 @@
     
 
     [_textField resignFirstResponder];
-    [app showIndecator:YES withView:self.view];
+    
     [_textField setEditable:NO];
     [_sendButton setEnabled:NO];
         
@@ -174,28 +177,35 @@
     NSDictionary* param = @{@"message":_textField.text,
                                     @"id_user":id_user
                                     };
-  
+ 
     [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"SENDMESSAGE" withParam:param] success:^(NSDictionary* responseObject) {
+        [app showIndecator:YES withView:self.view];
         if([responseObject isKindOfClass:[NSDictionary class]]){
-            NSLog(@"%@",responseObject);
+            //NSLog(@"%@",responseObject);
             [app showIndecator:NO withView:self.view];
             [_sendButton setEnabled:YES];
             [_textField setEditable:YES];
-            NSArray* param = (NSArray*)[responseObject objectForKey:@"param"];
+            if ([[responseObject objectForKey:@"command"] isEqualToString:@"BADREQUEST"]) {
+                [[BASManager sharedInstance] showAlertViewWithMess:@"Превышена максимальная длина сообщения"];
+            }
+            else{
+                NSArray* param = (NSArray*)[responseObject objectForKey:@"param"];
          
-            [self.messages removeAllObjects];
-            [self.messages addObjectsFromArray:(NSArray*)param];
+                [self.messages removeAllObjects];
+                [self.messages addObjectsFromArray:(NSArray*)param];
 
             
-            [_tableView reloadData];
-            if(_messages.count > 0){
-                [_tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:_messages.count -1] animated:YES scrollPosition:UITableViewScrollPositionBottom];
+                [_tableView reloadData];
+                if(_messages.count > 0){
+                    [_tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:_messages.count -1] animated:YES scrollPosition:UITableViewScrollPositionBottom];
+                }
+
+                _textField.text = @"";
             }
-
-            _textField.text = @"";
-
         }
     }failure:^(NSString *error) {
+        [_sendButton setEnabled:YES];
+        [_textField setEditable:YES];
         NSLog(@"%@",error);
     }];
   //  NSLog(@"end clicked");
@@ -328,7 +338,6 @@
     } else {
         widthForText = 400.f;
     }
-   
     CGSize size = [ThreadCell calcTextHeight:aMsg withinWidth:widthForText];
     
     size.height += 5;

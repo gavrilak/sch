@@ -139,7 +139,7 @@
                                    };
     [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"GETUSER" withParam:param] success:^(NSDictionary* responseObject) {
         if([responseObject isKindOfClass:[NSDictionary class]]){
-            NSLog(@"%@",responseObject);
+           // NSLog(@"%@",responseObject);
             NSArray* param = (NSArray*)[responseObject objectForKey:@"param"];
             NSDictionary* dict = (NSDictionary*)[param objectAtIndex:0];
             

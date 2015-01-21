@@ -95,9 +95,10 @@
 + (CGSize) calcTextHeight:(NSString *)str withinWidth:(CGFloat)width {
     
   CGSize textSize = {width, 20000.0};
+  
   CGSize size     = [str sizeWithFont:[UIFont systemFontOfSize:14.0] 
                     constrainedToSize:textSize];
-  
+    
   return size;
 }
 

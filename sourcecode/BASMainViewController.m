@@ -106,15 +106,17 @@
     
     [[BASManager sharedInstance] getData:[[BASManager sharedInstance] formatRequest:@"GETUSERS" withParam:nil] success:^(NSDictionary* responseObject) {
         if([responseObject isKindOfClass:[NSDictionary class]]){
-            NSLog(@"%@",responseObject);
-            self.contentData = [NSArray arrayWithArray:(NSArray*)[responseObject objectForKey:@"param"]];
+          //  NSLog(@"%@",responseObject);
+            if ([[responseObject objectForKey:@"command"] isEqualToString:@"GETUSERS"]){
+                self.contentData = [NSArray arrayWithArray:(NSArray*)[responseObject objectForKey:@"param"]];
             
-            if(_contentData.count > 0){
+                if(_contentData.count > 0){
                /* if(_updateTimer != nil){
                     [_updateTimer invalidate];
                     _updateTimer = nil;
                 }*/
                 [_tableView reloadData];
+                }
             }
            
             
@@ -161,13 +163,13 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TheApp;
     
-    app.chatController.contentData = (NSDictionary*)[_contentData objectAtIndex:indexPath.row];
-    [app.navigationController pushViewController:app.chatController animated:YES];
+        app.chatController.contentData = (NSDictionary*)[_contentData objectAtIndex:indexPath.row];
+        [app.navigationController pushViewController:app.chatController animated:YES];
     
-    if(_updateTimer != nil){
-        [_updateTimer invalidate];
-        _updateTimer = nil;
-    }
+        if(_updateTimer != nil){
+            [_updateTimer invalidate];
+            _updateTimer = nil;
+        }
     
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {

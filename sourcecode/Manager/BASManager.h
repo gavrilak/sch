@@ -5,7 +5,7 @@
 //  Created by Sergey on 26.05.14.
 //  Copyright (c) 2014 BestApp Studio. All rights reserved.
 //
-
+#import "SRWebSocket.h"
 #import <Foundation/Foundation.h>
 
 typedef enum{
@@ -29,7 +29,7 @@ typedef enum{
 
 
 @property (nonatomic,assign) id<ManagerDelegate> delegate;
-
+@property (nonatomic,retain)SRWebSocket *webSocket;
 //@property (nonatomic, strong) DLLocationTracker *locationTracker;
 
 

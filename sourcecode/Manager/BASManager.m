@@ -7,7 +7,7 @@
 //
 
 #import "BASManager.h"
-#import "SRWebSocket.h"
+
 #import "BASChatViewController.h"
 
 
@@ -19,7 +19,7 @@
     BOOL isClose;
 }
 
-@property (nonatomic,retain)SRWebSocket *webSocket;
+
 @property (nonatomic,strong) NSString* curCommand;
 @property (nonatomic,strong) NSDictionary* curDict;
 
@@ -51,7 +51,7 @@
    // self.webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://192.168.1.101:8887/"]]];
     self.webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://195.138.68.2:8887/"]]];
     _webSocket.delegate = self;
-    
+   
     
     [_webSocket open];
 }
@@ -67,7 +67,7 @@
 - (void)resetWebSocket{
     TheApp;
     if(_webSocket.readyState == SR_CLOSED){
-        [app showIndecator:YES withView:app.window];
+      //  [app showIndecator:YES withView:app.window];
         [self initSocket];
         if(app.userInfo != nil){
             isClose = YES;
@@ -82,6 +82,7 @@
     _failure = failure;
     
     if(_webSocket.readyState == SR_CLOSED){
+         [app showIndecator:YES withView:app.window];
         [self initSocket];
         if(app.userInfo != nil){
             isClose = YES;
@@ -117,7 +118,7 @@
             
             [self getData:[[BASManager sharedInstance] formatRequest:@"AUTH" withParam:param] success:^(NSDictionary* responseObject) {
                 if([responseObject isKindOfClass:[NSDictionary class]]){
-                    NSLog(@"%@",responseObject);
+                   // NSLog(@"%@",responseObject);
                     NSArray* userInfo = (NSArray*)[responseObject objectForKey:@"param"];
                     
                     NSDictionary* dict = (NSDictionary*)[userInfo objectAtIndex:0];
@@ -156,7 +157,7 @@
                                             @"push_token" :app.pushToken,
                                             };
                     [self getData:[[BASManager sharedInstance] formatRequest:@"SETPUSHTOKEN" withParam:param] success:^(NSDictionary* responseObject) {
-                        NSLog(@"%@",responseObject);
+                       // NSLog(@"%@",responseObject);
                         NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
                         [userDefaults removeObjectForKey:@"login"];
                         [userDefaults removeObjectForKey:@"password"];
@@ -299,19 +300,32 @@
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error;
 {
-    NSLog(@":( Websocket Failed With Error %@", error);
     TheApp;
-    //[app showIndecator:NO withView:app.window];
+    NSLog(@":( Websocket Failed With Error %@", error);
     isConnect = NO;
-    if (error.code == 60) //timeout
-        [self showAlertViewWithMess:@"Отсутствует связь с сервером! Повторите соединение позже!"];
-    //[[BASManager sharedInstance]LogIn];
+    if (error.code == 60)  // timeout
+        [self showAlertViewWithMess:@"Отсутствует связь с сервером! Повторите соединение через несколько минут!"];
+    
+    if (error.code == 51) //no internet
+        [self showAlertViewWithMess:@"Отсутствует интернет соединение! Повторите соединение позже!"];
+    
+    if( _failure!= nil)
+        _failure(error.localizedDescription);
+    
+    [app showIndecator:NO withView:app.window];
+  //[[BASManager sharedInstance]LogIn];
+    
+}
 
+
+- (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload{
+    //NSLog(@"pong");
+    [webSocket sendPing:nil];
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)message;
 {
-    NSLog(@"Received \"%@\"", message);
+  //  NSLog(@"Received \"%@\"", message);
     
     
     NSData* responceData = [message dataUsingEncoding:NSUTF8StringEncoding];
@@ -332,10 +346,17 @@
 
 - (void)webSocket:(SRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean;
 {
-    NSLog(@"WebSocket closed");
+    NSLog(@"WebSocket closed %u, %@",code,reason);
     isConnect = NO;
-    [self showAlertViewWithMess:@"Отсутствует связь с сервером! Повторите соединение позже!"];
-    //[[BASManager sharedInstance]LogIn];
+    if(code == 1010){
+        [self showAlertViewWithMess:@"Был осуществлен вход с другого устройства! Перезапустите приложение!"];
+    }
+    else if (code != 1063 ){
+        [self showAlertViewWithMess:@"Отсутствует связь с сервером! Перезапустите приложение!"];
+    }
+    
+    if(_failure!=nil)
+        _failure(reason);
     _webSocket = nil;
 }
 
@@ -352,7 +373,8 @@
     if(alertView.cancelButtonIndex == buttonIndex){
         TheApp;
         app.isShowMessage = NO;
-        
+        //if(!isConnect)
+         //  exit(0);
     }
 }
 -(NSString *)stringByStrippingHTML:(NSString*)str
