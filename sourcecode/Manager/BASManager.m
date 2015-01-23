@@ -49,7 +49,7 @@
     //ws://195.138.68.2:8887
     //ws://192.168.1.101:8887/
    // self.webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://192.168.1.101:8887/"]]];
-    self.webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://195.138.68.2:8887/"]]];
+    self.webSocket = [[SRWebSocket alloc] initWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"ws://chat.bestapp-studio.com:8887/"]]];
     _webSocket.delegate = self;
    
     
